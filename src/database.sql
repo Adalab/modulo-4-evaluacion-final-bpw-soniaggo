@@ -52,20 +52,26 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `simpsons_api`.`frases`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `simpsons_api`.`frases` ;
+DROP TABLE IF EXISTS `simpsons_api`.`frases` ; -- Esta línea es opcional si siempre haces DROP SCHEMA
 
 CREATE TABLE IF NOT EXISTS `simpsons_api`.`frases` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `texto` VARCHAR(255) NOT NULL,
   `marca_tiempo` VARCHAR(45) NULL,
-  `descripcion` VARCHAR(45) NULL,
-  `personaje_id` INT NOT NULL,
-  `capitulo_id` INT NOT NULL, 
-  PRIMARY KEY (`id`, `personajes_id`),
-  INDEX `fk_frases_personajes_idx` (`personajes_id` ASC) VISIBLE,
-  CONSTRAINT `fk_frases_personajes`
-    FOREIGN KEY (`personajes_id`)
+  `descripcion` TEXT NULL,
+  `personaje_id` INT NOT NULL,  -- Asegúrate de que esta columna exista
+  `capitulo_id` INT NULL,       -- Asegúrate de que esta columna exista y el tipo de dato sea correcto (NULL si permites frases sin capítulo)
+  PRIMARY KEY (`id`),
+  INDEX `fk_frases_personaje_idx` (`personaje_id` ASC) VISIBLE,
+  INDEX `fk_frases_capitulo_idx` (`capitulo_id` ASC) VISIBLE,
+  CONSTRAINT `fk_frases_personaje`
+    FOREIGN KEY (`personaje_id`)
     REFERENCES `simpsons_api`.`personajes` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_frases_capitulo`
+    FOREIGN KEY (`capitulo_id`)
+    REFERENCES `simpsons_api`.`capitulos` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -93,28 +99,32 @@ CREATE TABLE IF NOT EXISTS `simpsons_api`.`personajes_has_capitulos` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
+-- INSERT INTO personajes
 INSERT INTO `simpsons_api`.`personajes` (`id`, `nombre`, `apellido`, `ocupacion`, `descripcion`) VALUES
 (1, 'Homer', 'Simpson', 'Nuclear Safety Inspector', 'Homer es el padre de la familia Simpson, conocido por su torpeza y amor por la cerveza.'),
 (2, 'Marge', 'Simpson', 'Ama de casa', 'Marge es la madre de la familia Simpson, reconocida por su cabello azul y su paciencia.'),
 (3, 'Bart', 'Simpson', NULL, 'Bart es el hijo travieso de Homer y Marge, famoso por sus bromas y travesuras.'),
 (4, 'Lisa', 'Simpson', NULL, 'Lisa es la hija inteligente y preocupada por el medio ambiente de Homer y Marge.'),
-(5, 'Maggie', NULL, NULL, 'Maggie es la bebé de la familia Simpson, conocida por su chupete.');
+(5, 'Maggie', NULL, NULL, 'La bebé de la familia Simpson, conocida por su chupete.'),
+(6, 'Mr. Burns', 'Burns', 'Dueño de la Central Nuclear de Springfield', 'El jefe de Homer, anciano y malvado.'); -- Añadido Mr. Burns para las frases
 
-INSERT INTO `capitulos` (`titulo`, `numero_episodio`, `temporada`, `fecha_emision`, `sinopsis`) VALUES
+-- INSERT INTO capitulos
+INSERT INTO `simpsons_api`.`capitulos` (`titulo`, `numero_episodio`, `temporada`, `fecha_emision`, `sinopsis`) VALUES
 ('Bart el Genio', 2, 1, '1990-01-14', 'Bart hace trampa en una prueba de CI y es transferido a una escuela para superdotados.'),
 ('El Cuarteto de Homer', 3, 5, '1993-09-30', 'Homer forma un cuarteto de barbería que alcanza la fama.'),
 ('Cabo de Miedo', 2, 5, '1993-10-07', 'Sideshow Bob es liberado de prisión y persigue a Bart.');
 
-INSERT INTO `frases` (`texto`, `personaje_id`, `capitulo_id`, `marca_tiempo`, `descripcion`) VALUES
+-- INSERT INTO frases
+INSERT INTO `simpsons_api`.`frases` (`texto`, `personaje_id`, `capitulo_id`, `marca_tiempo`, `descripcion`) VALUES
 ('¡D''oh!', (SELECT id FROM personajes WHERE nombre = 'Homer'), (SELECT id FROM capitulos WHERE titulo = 'El Cuarteto de Homer'), '00:30', 'La clásica exclamación de Homer.'),
 ('Excelente...', (SELECT id FROM personajes WHERE nombre = 'Mr. Burns'), NULL, NULL, 'La frase del Sr. Burns.'),
 ('¡Ay, caramba!', (SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Bart el Genio'), '01:15', 'El latiguillo de Bart.'),
 ('Mmm... rosquillas.', (SELECT id FROM personajes WHERE nombre = 'Homer'), NULL, NULL, 'Una de las frases más icónicas de Homer sobre su pasión por las rosquillas.');
 
-INSERT INTO personajes_capitulos (personaje_id, capitulo_id) VALUES
-((SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Bart el Genio')),
+-- INSERT INTO personajes_has_capitulos (si quieres poblar esta tabla también)
+INSERT INTO `simpsons_api`.`personajes_has_capitulos` (`personajes_id`, `capitulos_id`) VALUES
 ((SELECT id FROM personajes WHERE nombre = 'Homer'), (SELECT id FROM capitulos WHERE titulo = 'El Cuarteto de Homer')),
+((SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Bart el Genio')),
 ((SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Cabo de Miedo')),
 ((SELECT id FROM personajes WHERE nombre = 'Lisa'), (SELECT id FROM capitulos WHERE titulo = 'Cabo de Miedo'));
 
