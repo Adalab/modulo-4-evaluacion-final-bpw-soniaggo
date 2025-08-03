@@ -52,15 +52,15 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `simpsons_api`.`frases`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `simpsons_api`.`frases` ; -- Esta línea es opcional si siempre haces DROP SCHEMA
+DROP TABLE IF EXISTS `simpsons_api`.`frases` ; 
 
 CREATE TABLE IF NOT EXISTS `simpsons_api`.`frases` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `texto` VARCHAR(255) NOT NULL,
   `marca_tiempo` VARCHAR(45) NULL,
   `descripcion` TEXT NULL,
-  `personaje_id` INT NOT NULL,  -- Asegúrate de que esta columna exista
-  `capitulo_id` INT NULL,       -- Asegúrate de que esta columna exista y el tipo de dato sea correcto (NULL si permites frases sin capítulo)
+  `personaje_id` INT NOT NULL,  
+  `capitulo_id` INT NULL,      
   PRIMARY KEY (`id`),
   INDEX `fk_frases_personaje_idx` (`personaje_id` ASC) VISIBLE,
   INDEX `fk_frases_capitulo_idx` (`capitulo_id` ASC) VISIBLE,
@@ -106,7 +106,7 @@ INSERT INTO `simpsons_api`.`personajes` (`id`, `nombre`, `apellido`, `ocupacion`
 (3, 'Bart', 'Simpson', NULL, 'Bart es el hijo travieso de Homer y Marge, famoso por sus bromas y travesuras.'),
 (4, 'Lisa', 'Simpson', NULL, 'Lisa es la hija inteligente y preocupada por el medio ambiente de Homer y Marge.'),
 (5, 'Maggie', NULL, NULL, 'La bebé de la familia Simpson, conocida por su chupete.'),
-(6, 'Mr. Burns', 'Burns', 'Dueño de la Central Nuclear de Springfield', 'El jefe de Homer, anciano y malvado.'); -- Añadido Mr. Burns para las frases
+(6, 'Mr. Burns', 'Burns', 'Dueño de la Central Nuclear de Springfield', 'El jefe de Homer, anciano y malvado.'); 
 
 -- INSERT INTO capitulos
 INSERT INTO `simpsons_api`.`capitulos` (`titulo`, `numero_episodio`, `temporada`, `fecha_emision`, `sinopsis`) VALUES
@@ -121,7 +121,7 @@ INSERT INTO `simpsons_api`.`frases` (`texto`, `personaje_id`, `capitulo_id`, `ma
 ('¡Ay, caramba!', (SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Bart el Genio'), '01:15', 'El latiguillo de Bart.'),
 ('Mmm... rosquillas.', (SELECT id FROM personajes WHERE nombre = 'Homer'), NULL, NULL, 'Una de las frases más icónicas de Homer sobre su pasión por las rosquillas.');
 
--- INSERT INTO personajes_has_capitulos (si quieres poblar esta tabla también)
+-- INSERT INTO personajes_has_capitulos 
 INSERT INTO `simpsons_api`.`personajes_has_capitulos` (`personajes_id`, `capitulos_id`) VALUES
 ((SELECT id FROM personajes WHERE nombre = 'Homer'), (SELECT id FROM capitulos WHERE titulo = 'El Cuarteto de Homer')),
 ((SELECT id FROM personajes WHERE nombre = 'Bart'), (SELECT id FROM capitulos WHERE titulo = 'Bart el Genio')),

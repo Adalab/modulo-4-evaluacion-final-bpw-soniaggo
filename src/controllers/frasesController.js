@@ -1,34 +1,32 @@
-// src/controllers/frasesController.js
 
-const { pool } = require('../db'); // Importa tu conexión a la base de datos
+
+const { pool } = require('../db'); 
 
 /**
  * Crea una nueva frase en la base de datos.
- * @param {object} req - Objeto de solicitud de Express.
- * @param {object} res - Objeto de respuesta de Express.
+ * @param {object} req 
+ * @param {object} res
  */
 exports.createFrase = async (req, res) => {
-    // Obtiene los datos del cuerpo de la petición (JSON)
+   
     const { texto, marca_tiempo, descripcion, personaje_id, capitulo_id } = req.body;
 
-    // Validación básica: 'texto' y 'personaje_id' son obligatorios
-    // 'capitulo_id' es opcional según el esquema de la BD
+    
     if (!texto || !personaje_id) {
         return res.status(400).json({ message: 'Los campos texto y personaje_id son obligatorios.' });
     }
 
     try {
-        // Ejecuta la consulta SQL para insertar la nueva frase
-        // Los '?' son placeholders que serán reemplazados por los valores del array
+        
         const [result] = await pool.query(
             'INSERT INTO frases (texto, marca_tiempo, descripcion, personaje_id, capitulo_id) VALUES (?, ?, ?, ?, ?)',
             [texto, marca_tiempo, descripcion, personaje_id, capitulo_id]
         );
 
-        // Si la inserción fue exitosa, devuelve un mensaje de éxito y el ID de la nueva frase
+       
         res.status(201).json({ message: 'Frase insertada correctamente', id: result.insertId });
     } catch (error) {
-        // Si ocurre un error, lo loguea en la consola del servidor y envía un error 500 al cliente
+        
         console.error('Error al insertar frase:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
@@ -36,8 +34,8 @@ exports.createFrase = async (req, res) => {
 
 /**
  * Obtiene todas las frases con información detallada de personaje y capítulo.
- * @param {object} req - Objeto de solicitud de Express.
- * @param {object} res - Objeto de respuesta de Express.
+ * @param {object} req 
+ * @param {object} res 
  */
 exports.getAllFrases = async (req, res) => {
     try {
@@ -51,7 +49,7 @@ exports.getAllFrases = async (req, res) => {
             LEFT JOIN capitulos c ON f.capitulo_id = c.id -- Usamos LEFT JOIN para incluir frases sin capítulo
         `);
 
-        // Formatear la respuesta para que sea más legible para el cliente
+        
         const frases = rows.map(frase => ({
             id: frase.id,
             texto: frase.texto,
@@ -62,13 +60,13 @@ exports.getAllFrases = async (req, res) => {
                 nombre: frase.personaje_nombre,
                 apellido: frase.personaje_apellido
             },
-            // Si capitulo_id es NULL, el objeto capitulo será null
+          
             capitulo: frase.capitulo_id ? {
                 id: frase.capitulo_id,
                 titulo: frase.capitulo_titulo
             } : null
         }));
-        res.json(frases); // Devuelve la lista de frases
+        res.json(frases); 
     } catch (error) {
         console.error('Error al obtener todas las frases:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
@@ -77,8 +75,8 @@ exports.getAllFrases = async (req, res) => {
 
 /**
  * Función auxiliar para obtener una frase específica con detalles de personaje y capítulo.
- * @param {number} fraseId - El ID de la frase a buscar.
- * @returns {object|null} La frase formateada o null si no se encuentra.
+ * @param {number} fraseId 
+ * @returns {object|null} 
  */
 async function getFraseWithDetails(fraseId) {
     try {
@@ -98,7 +96,7 @@ async function getFraseWithDetails(fraseId) {
         }
 
         const frase = rows[0];
-        // Formatea la respuesta
+ 
         return {
             id: frase.id,
             texto: frase.texto,
@@ -109,25 +107,25 @@ async function getFraseWithDetails(fraseId) {
                 nombre: frase.personaje_nombre,
                 apellido: frase.personaje_apellido
             },
-            // Si capitulo_id es NULL, el objeto capitulo será null
+          
             capitulo: frase.capitulo_id ? {
                 id: frase.capitulo_id,
                 titulo: frase.capitulo_titulo
             } : null
         };
     } catch (error) {
-        // Propaga el error para que sea manejado por la función que llama (getFraseById)
+       
         throw error;
     }
 }
 
 /**
  * Obtiene una frase específica por su ID.
- * @param {object} req - Objeto de solicitud de Express.
- * @param {object} res - Objeto de respuesta de Express.
+ * @param {object} req 
+ * @param {object} res 
  */
 exports.getFraseById = async (req, res) => {
-    const { id } = req.params; // Obtiene el ID de los parámetros de la URL
+    const { id } = req.params;
 
     try {
         const frase = await getFraseWithDetails(id);
@@ -143,21 +141,20 @@ exports.getFraseById = async (req, res) => {
 
 /**
  * Actualiza una frase existente por su ID.
- * @param {object} req - Objeto de solicitud de Express.
- * @param {object} res - Objeto de respuesta de Express.
+ * @param {object} req 
+ * @param {object} res 
  */
 exports.updateFrase = async (req, res) => {
-    const { id } = req.params; // Obtiene el ID de los parámetros de la URL
-    const { texto, marca_tiempo, descripcion, personaje_id, capitulo_id } = req.body; // Obtiene los datos del cuerpo de la petición
+    const { id } = req.params; 
+    const { texto, marca_tiempo, descripcion, personaje_id, capitulo_id } = req.body; 
 
-    // Validación básica: 'texto' y 'personaje_id' son obligatorios para la actualización
-    // 'capitulo_id' es opcional según el esquema de la BD
+  
     if (!texto || !personaje_id) {
         return res.status(400).json({ message: 'Los campos texto y personaje_id son obligatorios.' });
     }
 
     try {
-        // Ejecuta la consulta SQL para actualizar la frase
+       
         const [result] = await pool.query(
             'UPDATE frases SET texto = ?, marca_tiempo = ?, descripcion = ?, personaje_id = ?, capitulo_id = ? WHERE id = ?',
             [texto, marca_tiempo, descripcion, personaje_id, capitulo_id, id]
@@ -174,14 +171,14 @@ exports.updateFrase = async (req, res) => {
 };
 /**
  * Elimina una frase por su ID.
- * @param {object} req - Objeto de solicitud de Express.
- * @param {object} res - Objeto de respuesta de Express.
+ * @param {object} req 
+ * @param {object} res 
  */
 exports.deleteFrase = async (req, res) => {
-    const { id } = req.params; // Obtiene el ID de los parámetros de la URL
+    const { id } = req.params; 
 
     try {
-        // Ejecuta la consulta SQL para eliminar la frase
+       
         const [result] = await pool.query('DELETE FROM frases WHERE id = ?', [id]);
 
         if (result.affectedRows === 0) {

@@ -18,7 +18,7 @@ async function testDbConnection() {
         connection.release();
     } catch (error) {
         console.error('Error al conectar a la base de datos:', error.message);
-        process.exit(1); // Sale de la aplicación si no puede conectar a la DB
+        process.exit(1); 
     }
 }
 
